@@ -13,11 +13,29 @@ text-align:center;
 text-align:left;
 line-height:1.5;
 }
-video {
+.camera-container {
+position:relative;
+display:inline-block;
 width:100%;
 max-width:400px;
+}
+video {
+width:100%;
 border-radius:10px;
 margin-top:15px;
+}
+#cameraGuide {
+position:absolute;
+top:25px;
+left:50%;
+transform:translateX(-50%);
+background:rgba(0,0,0,0.65);
+color:white;
+padding:12px;
+border-radius:10px;
+font-size:20px;
+width:85%;
+z-index:5;
 }
 button {
 padding:12px 18px;
@@ -34,12 +52,16 @@ display:none;
 }
 </style>
 </head>
+
 <body>
+
 <h2>Welcome to the Program</h2>
+
 <div class="instructions">
 <p>
 Hi welcome to the program and thank you for joining the study.
 </p>
+
 <p>
 You will record 4 short videos:
 <br>
@@ -47,110 +69,202 @@ You will record 4 short videos:
 <br>
 • Two outdoors
 </p>
+
 <p>
 <strong>Each video must be 20 seconds maximum.</strong>
 </p>
+
 <h3>Video One: Indoors - Neutral Face</h3>
 <p>
-Hold still and look at the camera for 5 seconds, then slowly move your head up, then down, then turn it toward your left shoulder, and then toward your right shoulder.
+Look at the camera. Hold still for 5 seconds, then move your head up, down, left and right.
 </p>
+
 <h3>Video Two: Indoors - Surprised Face</h3>
 <p>
-Make a surprised face (wide eyes, eyebrows up). Hold still and look at the camera for 5 seconds, then slowly move your head up, then down, then turn it toward your left shoulder, and then toward your right shoulder.
+Make a surprised face. Hold still for 5 seconds, then move your head up, down, left and right.
 </p>
+
 <h3>Video Three: Outdoors - Neutral Face</h3>
 <p>
 Repeat the same movements outdoors.
 </p>
+
 <h3>Video Four: Outdoors - Serious Frown</h3>
 <p>
 Repeat the same movements outdoors with a serious frown.
 </p>
+
 </div>
+
 <hr>
-<h3 id="currentVideo">Choose a video</h3>
+
+<h3 id="currentVideo">
+Choose a video
+</h3>
+
 <div id="completed">
 Completed: 0 / 4 videos
 </div>
-<div id="timer">20</div>
+
+<div id="timer">
+20
+</div>
+
+<div class="camera-container">
+<div id="cameraGuide">
+Allow camera to start
+</div>
 <video id="camera" autoplay playsinline></video>
+</div>
+
 <video id="preview" controls class="hidden"></video>
+
 <br>
+
 <button onclick="startCamera()">
 Allow Camera
 </button>
 
 <br>
-<button onclick="selectVideo(1)">Start Video 1</button>
-<button onclick="selectVideo(2)">Start Video 2</button>
-<button onclick="selectVideo(3)">Start Video 3</button>
-<button onclick="selectVideo(4)">Start Video 4</button>
+
+<button onclick="selectVideo(1)">
+Start Video 1
+</button>
+<button onclick="selectVideo(2)">
+Start Video 2
+</button>
+<button onclick="selectVideo(3)">
+Start Video 3
+</button>
+<button onclick="selectVideo(4)">
+Start Video 4
+</button>
 
 <br>
+
 <button onclick="startRecording()">
 Start Recording
 </button>
+
 <button onclick="stopRecording()">
 Finish Recording
 </button>
+
 <br>
+
 <button id="again" class="hidden" onclick="recordAgain()">
 Record Again
 </button>
+
+<br>
 
 <a id="downloadLink" class="hidden">
 Download Video
 </a>
 
 <br><br>
+
 <div id="finishSection" class="hidden">
+
 <h3>
 All videos completed!
 </h3>
+
 <p>
-Thank you for participating. Click below to upload your videos.
+Thank you for participating. Click below to register and upload your videos.
 </p>
+
 <a id="projectLink" target="_blank">
 <button>
-Upload Videos
+Register and Upload Videos
 </button>
 </a>
+
 </div>
 
+
 <script>
+
 let camera=document.getElementById("camera");
 let preview=document.getElementById("preview");
 let recorder;
 let chunks=[];
 let stream;
+
 let timer;
 let seconds=20;
-let selectedVideo=1;
-let completed=0;
-let projectUploadURL="https://onetake.oneforma.com/r/U6vPQN";
 
-document.getElementById("projectLink").href=projectUploadURL;
+let selectedVideo=1;
+
+let completed=0;
+
+let projectUploadURL=
+"https://onetake.oneforma.com/r/U6vPQN";
+
+document.getElementById("projectLink").href=
+projectUploadURL;
+
 
 async function startCamera(){
+
 stream=await navigator.mediaDevices.getUserMedia({
 video:true,
 audio:true
 });
+
 camera.srcObject=stream;
+
+document.getElementById("cameraGuide").innerHTML=
+"Camera ready";
+
 }
+
 
 function selectVideo(number){
+
 selectedVideo=number;
+
 document.getElementById("currentVideo").innerHTML=
 "Ready to record Video "+number;
+
 seconds=20;
+
 document.getElementById("timer").innerHTML=seconds;
+
 }
 
+
 function startRecording(){
+
 chunks=[];
+
 preview.classList.add("hidden");
+
+document.getElementById("cameraGuide").innerHTML=
+"👀 Look at the camera<br>Hold still for 5 seconds";
+
+setTimeout(function(){
+document.getElementById("cameraGuide").innerHTML=
+"⬆️<br>Move your head up";
+},5000);
+
+setTimeout(function(){
+document.getElementById("cameraGuide").innerHTML=
+"⬇️<br>Move your head down";
+},8000);
+
+setTimeout(function(){
+document.getElementById("cameraGuide").innerHTML=
+"⬅️<br>Turn your head left";
+},11000);
+
+setTimeout(function(){
+document.getElementById("cameraGuide").innerHTML=
+"➡️<br>Turn your head right";
+},14000);
+
 let options={};
+
 if(MediaRecorder.isTypeSupported("video/mp4")){
 options.mimeType="video/mp4";
 }
@@ -158,7 +272,7 @@ else if(MediaRecorder.isTypeSupported("video/webm")){
 options.mimeType="video/webm";
 }
 
-recorder=new MediaRecorder(stream, options);
+recorder=new MediaRecorder(stream,options);
 
 recorder.ondataavailable=function(e){
 chunks.push(e.data);
@@ -167,6 +281,7 @@ chunks.push(e.data);
 recorder.onstop=function(){
 
 let type=recorder.mimeType;
+
 let extension =
 type.includes("mp4") ? "mp4" : "webm";
 
@@ -177,10 +292,13 @@ type:type
 let url=URL.createObjectURL(blob);
 
 preview.src=url;
+
 preview.classList.remove("hidden");
 
 let link=document.getElementById("downloadLink");
+
 link.href=url;
+
 link.download=
 "Study_Video_"+selectedVideo+"."+extension;
 
@@ -189,9 +307,11 @@ link.innerHTML=
 
 link.classList.remove("hidden");
 
-document.getElementById("again").classList.remove("hidden");
+document.getElementById("again")
+.classList.remove("hidden");
 
 completed++;
+
 document.getElementById("completed").innerHTML=
 "Completed: "+completed+" / 4 videos";
 
@@ -207,33 +327,47 @@ recorder.start();
 seconds=20;
 
 timer=setInterval(function(){
+
 seconds--;
-document.getElementById("timer").innerHTML=seconds;
+
+document.getElementById("timer").innerHTML=
+seconds;
 
 if(seconds<=0){
 stopRecording();
 }
+
 },1000);
 
 }
 
+
 function stopRecording(){
+
 clearInterval(timer);
 
 if(recorder && recorder.state==="recording"){
 recorder.stop();
 }
+
 }
 
+
 function recordAgain(){
+
 preview.classList.add("hidden");
+
 document.getElementById("downloadLink")
 .classList.add("hidden");
+
 document.getElementById("again")
 .classList.add("hidden");
+
 selectVideo(selectedVideo);
+
 }
 
 </script>
+
 </body>
 </html>
