@@ -2,52 +2,175 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Video Instructions</title>
+<title>Video Recording Study</title>
 <style>
 body {
  font-family: Arial, sans-serif;
  padding: 20px;
+ text-align: center;
 }
-button {
- padding: 15px;
- margin: 10px 0;
- width: 100%;
- font-size: 18px;
+.instructions {
+ text-align: left;
+ line-height: 1.5;
 }
 video {
  width: 100%;
- margin-top: 20px;
+ max-width: 400px;
+ border-radius: 10px;
+ margin-top: 15px;
+}
+button {
+ padding: 12px 18px;
+ margin: 8px;
+ font-size: 16px;
+ border-radius: 8px;
+}
+#timer {
+ font-size: 28px;
+ font-weight: bold;
 }
 </style>
 </head>
 <body>
-<h1>AI Video Instructions</h1>
-<p>Hi! Welcome to the program.</p>
-<p>Please follow these instructions before recording:</p>
-<ul>
-<li>Record in a quiet place.</li>
-<li>Make sure your face is clearly visible.</li>
-<li>Use good lighting.</li>
-<li>Hold your phone horizontally.</li>
-<li>Follow the requested movements and instructions.</li>
-<li>Complete the recording until the end.</li>
-</ul>
-<h2>Start Your Recording</h2>
-<button onclick="openCamera()">Open Camera</button>
+<h2>Welcome to the Program</h2>
+<div class="instructions">
+<p>
+Hi welcome to the program and thank you for joining the study.
+</p>
+<p>
+You will record 4 short videos:
+<br>
+• Two indoors
+<br>
+• Two outdoors
+</p>
+<p>
+<strong>Each video must be 20 seconds maximum.</strong>
+</p>
+
+<h3>Video One: Indoors - Neutral Face</h3>
+<p>
+Hold still and look at the camera for 5 seconds, then slowly move your head up, then down, then turn it toward your left shoulder, and then toward your right shoulder.
+</p>
+
+<h3>Video Two: Indoors - Surprised Face</h3>
+<p>
+Make a surprised face (wide eyes, eyebrows up). Hold still and look at the camera for 5 seconds, then slowly move your head up, then down, then turn it toward your left shoulder, and then toward your right shoulder.
+</p>
+
+<h3>Video Three: Outdoors - Neutral Face</h3>
+<p>
+Hold still and look at the camera for 5 seconds, then slowly move your head up, then down, then turn it toward your left shoulder, and then toward your right shoulder.
+</p>
+
+<h3>Video Four: Outdoors - Serious Frown</h3>
+<p>
+Hold still and look at the camera for 5 seconds, then slowly move your head up, then down, then turn it toward your left shoulder, and then toward your right shoulder.
+</p>
+</div>
+
+<hr>
+<h3 id="currentVideo">Choose a video to record</h3>
+<div id="timer">20</div>
 <video id="camera" autoplay playsinline></video>
+<br>
+<button onclick="startCamera()">Allow Camera</button>
+<br>
+<button onclick="selectVideo(1)">
+Start Video 1
+</button>
+<button onclick="selectVideo(2)">
+Start Video 2
+</button>
+<button onclick="selectVideo(3)">
+Start Video 3
+</button>
+<button onclick="selectVideo(4)">
+Start Video 4
+</button>
+<br>
+<button onclick="startRecording()">
+Start Recording
+</button>
+<button onclick="stopRecording()">
+Finish Recording
+</button>
+<br>
+<a id="downloadLink" style="display:none;">
+Download Your Video
+</a>
+
 <script>
-async function openCamera(){
-try {
-const stream = await navigator.mediaDevices.getUserMedia({
+let camera = document.getElementById("camera");
+let recorder;
+let chunks = [];
+let stream;
+let timer;
+let seconds = 20;
+let selectedVideo = 1;
+
+async function startCamera(){
+stream = await navigator.mediaDevices.getUserMedia({
 video:true,
 audio:true
 });
-document.getElementById("camera").srcObject = stream;
+camera.srcObject = stream;
 }
-catch(error){
-alert("Camera access is required to record your video.");
+
+function selectVideo(number){
+selectedVideo = number;
+document.getElementById("currentVideo").innerHTML =
+"Ready to record Video " + number;
+seconds = 20;
+document.getElementById("timer").innerHTML = seconds;
+}
+
+function startRecording(){
+chunks=[];
+recorder = new MediaRecorder(stream);
+
+recorder.ondataavailable = function(e){
+chunks.push(e.data);
+};
+
+recorder.onstop = function(){
+let blob = new Blob(chunks,{
+type:"video/webm"
+});
+
+let url = URL.createObjectURL(blob);
+
+let link=document.getElementById("downloadLink");
+link.href=url;
+link.download =
+"Video_" + selectedVideo + "_Study.webm";
+link.style.display="inline-block";
+link.innerHTML =
+"Download Video " + selectedVideo;
+
+};
+
+recorder.start();
+
+seconds=20;
+timer=setInterval(function(){
+seconds--;
+document.getElementById("timer").innerHTML=seconds;
+
+if(seconds<=0){
+stopRecording();
+}
+
+},1000);
+}
+
+function stopRecording(){
+clearInterval(timer);
+if(recorder && recorder.state==="recording"){
+recorder.stop();
 }
 }
 </script>
+
 </body>
 </html>
